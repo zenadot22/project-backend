@@ -1,8 +1,7 @@
-from flask import Flask,request,render_template,jsonify
+from flask import Flask,request,jsonify
 import sqlite3
-import smtplib
-from email.mime.text import MIMEText
 from flask_cors import CORS
+
 
 def dict_factory(cursor, row):
     d = {}
@@ -20,10 +19,13 @@ def init_sqlite_db():
     print("Table created successfully")
     conn.close()
 
+
 init_sqlite_db()
+
 
 app = Flask(__name__)
 CORS(app)
+
 
 @app.route('/')
 @app.route('/register/',methods=['POST'])
@@ -46,8 +48,8 @@ def add_user():
         msg = "Error occurred in insert operation: " + str(e)
 
     finally:
-        return jsonify(msg)
         con.close()
+        return jsonify(msg)
 
 
 @app.route('/show-items/', methods=["GET"])
@@ -55,7 +57,7 @@ def show_records():
     records = []
     try:
         with sqlite3.connect('e-commerce.db') as con:
-            con.row_factory = dict_factory
+            # con.row_factory = dict_factory
             cur = con.cursor()
             cur.execute("SELECT * FROM register")
             records = cur.fetchall()
@@ -66,7 +68,8 @@ def show_records():
         con.close()
         return jsonify(records)
 
-#inserting into table products
+
+# inserting into table products
 @app.route('/shop-products/')
 def add_products():
     try:
@@ -115,50 +118,5 @@ def show_products():
         return jsonify(data)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# @app.route('/send-email/', methods=["POST", "GET"])
-# def send_email():
-#
-#     try:
-#         # subject = request.form['subject']
-#         name = request.form['name']
-#         email = request.form['email']
-#         message = MIMEText(request.form['message'])
-#         # message['Subject'] = subject
-#         message['From'] = email
-#         message['To'] = email
-#
-#         server = smtplib.SMTP('smtp.gmail.com', 587)
-#         sender_email = email
-#         receiver_email = "dotwanazenande@gmail.com"
-#         password = "07307865"
-#
-#         server.starttls()
-#         server.login(sender_email, password)
-#         server.sendmail(sender_email, receiver_email, message.as_string())
-#         server.quit()
-#     except smtplib.SMTPException as e:
-#         return "Something wrong happened: " + e
-#     return render_template('contact.html')
-#
-
 if __name__=='__main__':
     app.run(debug=True)
-
